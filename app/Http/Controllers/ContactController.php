@@ -184,14 +184,14 @@ class ContactController extends Controller
         $aResult = array_column($result, 'contact_number');
         $aResult = json_encode($aResult);
         
-        
-        $crud = Contact::select('contacts.id','contact_number'
-                , DB::raw("COUNT(contact_relations.id) as count_click"))
+        DB::select(DB::raw("set SESSION sql_mode='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE"
+                . ",NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION'"));
+        $crud = Contact::select(DB::raw("COUNT(contact_relations.id) as count_click"))
         ->leftJoin('contact_relations', 'contact_relations.contact_id', '=', 'contacts.id');
         $crud->groupBy('contacts.contact_number');
-        $aCount = $crud->orderBy('contacts.id','asc')->get();
-        $aCount = json_encode($aCount);
+        $aCount = $crud->orderBy('contacts.id','asc')->get()->toArray();
+        $aCount1 = array_column($aCount, 'count_click');
+        $aCount = json_encode($aCount1);
         return view('contact.burndown', compact('aResult','aCount'));
-//       return redirect('/burndown');
     }
 }

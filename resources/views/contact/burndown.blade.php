@@ -16,7 +16,7 @@
       text: 'Burndown Chart',
       x: -20 //center
     },
-//    colors: ['blue', 'red'],
+    colors: ['blue', 'red'],
     plotOptions: {
       line: {
         lineWidth: 3
@@ -26,7 +26,6 @@
       }
     },
     subtitle: {
-      text: 'Sprint 1',
       x: -20
     },
     xAxis: {
@@ -42,7 +41,7 @@
       }]
     },
     tooltip: {
-      valueSuffix: ' hrs',
+//      valueSuffix: ' hrs',
       crosshairs: true,
       shared: true
     },
@@ -58,7 +57,7 @@
       marker: {
         radius: 6
       },
-      data: <?php echo $aCount;?>
+      data: <?php echo $aCount ?>
     }]
   });
 });
@@ -73,8 +72,6 @@
 
             <div class="panel panel-default">
 
-                <div class="panel-heading">Dashboard</div>
-
                 <div class="panel-body">
 
                     <div id="burndown"></div>
@@ -85,6 +82,10 @@
 
         </div>
 
+    </div>
+    <div class="form-group row">
+      <div class="col-md-2"></div>
+      <a href="{{ URL::previous() }}">Go Back</a>
     </div>
 
 </div>

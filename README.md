@@ -8,8 +8,8 @@ Change the databse name in .env file on root with username and password.
 Run command to migrate the database "php artisan migrate"
 
 Run the below commands:
-php artisan key:generate
-php artisan config:clear
-php artisan config:cache
+"php artisan key:generate"
+"php artisan config:clear"
+"php artisan config:cache"
 
 After Running the Project, Click on Import to get the records.
