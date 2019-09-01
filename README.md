@@ -1,6 +1,9 @@
 # assignment
 Create Database name
-composer update to insall the vendor
+
+Change the databse name in .env file on root with username and password.
+
+"composer update" to install the vendor
 
 Run command to migrate the database "php artisan migrate"
 
