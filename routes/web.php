@@ -16,8 +16,8 @@ Route::get('/', function () {
 });
 Route::resource('contact', 'ContactController');
 
-//Route::get('contact/import', [
- //   'uses' => 'ContactController@import'
- // ]);
+
   
 Route::get('/import', 'ContactController@import');
+Route::get('/burndown', 'ContactController@burndown');
+

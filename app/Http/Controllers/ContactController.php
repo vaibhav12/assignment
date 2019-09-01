@@ -17,8 +17,7 @@ class ContactController extends Controller
      */
     public function index()
     {
-        //$cruds = Contact::all()->toArray();
-		$cruds = Contact::paginate(10);
+        $cruds = Contact::paginate(10);
         
         return view('contact.index', compact('cruds'));
     }
@@ -41,7 +40,7 @@ class ContactController extends Controller
      */
     public function store(Request $request)
     {
-		$validator = Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'full_name' => 'required|max:255|regex:/^[a-zA-Z]{2,40}(?: +[a-zA-Z]{2,40})+$/',
             'email' => 'required | email',
 			'contact_number' => 'required|unique:contacts|numeric'
@@ -80,26 +79,26 @@ class ContactController extends Controller
     public function edit($id)
     {
         $crud = Contact::find($id);
-		$arr[] = $id;
-		//$searchRelation = ContactRelation::select('group_concat(relation_contact_id)')->where('contact_id', $id)->get();
-		$searchRelation = DB::table('contact_relations')
-            ->select(DB::raw("GROUP_CONCAT(relation_contact_id) as `ids`"))
-            ->where('contact_id', $id)
-            ->first();
-		$relationIds = explode(",",$searchRelation->ids);
-		$arr = array_merge($relationIds,$arr);
+        $arr[] = $id;
+        //$searchRelation = ContactRelation::select('group_concat(relation_contact_id)')->where('contact_id', $id)->get();
+        $searchRelation = DB::table('contact_relations')
+        ->select(DB::raw("GROUP_CONCAT(relation_contact_id) as `ids`"))
+        ->where('contact_id', $id)
+        ->first();
+        $relationIds = explode(",",$searchRelation->ids);
+        $arr = array_merge($relationIds,$arr);
 		
-		$searchRelationReverse = DB::table('contact_relations')
-            ->select(DB::raw("GROUP_CONCAT(contact_id) as `ids`"))
-            ->where('relation_contact_id', $id)
-            ->first();		
-		$relationIdsReverse = explode(",",$searchRelationReverse->ids);
-		
-		$arr = array_merge($relationIdsReverse,$arr);
-		
-		$results = Contact::select('id','full_name')->whereNotIn('id', $arr)->get();
-		
-		return view('contact.edit', compact('crud','id','results'));
+        $searchRelationReverse = DB::table('contact_relations')
+        ->select(DB::raw("GROUP_CONCAT(contact_id) as `ids`"))
+        ->where('relation_contact_id', $id)
+        ->first();		
+        $relationIdsReverse = explode(",",$searchRelationReverse->ids);
+
+        $arr = array_merge($relationIdsReverse,$arr);
+
+        $results = Contact::select('id','full_name')->whereNotIn('id', $arr)->get();
+
+        return view('contact.edit', compact('crud','id','results'));
     }
 
     /**
@@ -111,7 +110,7 @@ class ContactController extends Controller
      */
     public function update(Request $request, $id)
     {
-		$validator = Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'full_name' => 'required|max:255|regex:/^[a-zA-Z]{2,40}(?: +[a-zA-Z]{2,40})+$/',
             'email' => 'required | email',
 			'contact_number' => 'required|numeric'
@@ -120,24 +119,23 @@ class ContactController extends Controller
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
-		//echo "<pre>";print_r($request->all());die;
-		$crud = Contact::find($id);
+        $crud = Contact::find($id);
         $crud->full_name = $request->get('full_name');
         $crud->email = $request->get('email');
-		$crud->contact_number = $request->get('contact_number');
+        $crud->contact_number = $request->get('contact_number');
         $crud->save();
 		
-		if(count($request->get('relation_id')) > 0){
-			foreach($request->get('relation_id') as $value){
-				$saveRelation = new ContactRelation([
-				  'contact_id' => $id,
-				  'relation_contact_id' => $value,
-				]);
+        if(count($request->get('relation_id')) > 0){
+            foreach($request->get('relation_id') as $value){
+                $saveRelation = new ContactRelation([
+                  'contact_id' => $id,
+                  'relation_contact_id' => $value,
+                ]);
 
-				$saveRelation->save();
-			}
-		}
-		return redirect('/contact');
+                $saveRelation->save();
+            }
+        }
+        return redirect('/contact');
     }
 
     /**
@@ -154,31 +152,46 @@ class ContactController extends Controller
       return redirect('/contact');
     }
 	
-	/**
+    /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
     public function import()
     {
-		$data= file_get_contents('https://uinames.com/api/?ext&amount=10&region=india');
-		$data = json_decode($data);
-		
-		foreach($data as $listing){
-			//echo "<pre>";print_r($listing);die;
-			//Films::updateOrCreate([
-								 //'title' => $title,
-								// '$times' => $time
-								// ]);
-			$phone = '+'.str_replace(['+','(',')',' ','-'],['','','','',''],$listing->phone);					
-			$contact = new Contact([
-				  'full_name' => $listing->name." ".$listing->surname,
-				  'email' => $listing->email,
-				  'contact_number' => $phone,
-				]);
+        $data= file_get_contents('https://uinames.com/api/?ext&amount=10&region=india');
+        $data = json_decode($data);
 
-			$contact->save();					 
-		}
-		return redirect('/contact');
+        foreach($data as $listing){
+            $phone = '+'.str_replace(['+','(',')',' ','-'],['','','','',''],$listing->phone);					
+            $contact = new Contact([
+                      'full_name' => $listing->name." ".$listing->surname,
+                      'email' => $listing->email,
+                      'contact_number' => $phone,
+                    ]);
+
+            $contact->save();					 
+        }
+        return redirect('/contact');
+    }
+    /**
+     * Burn down chart
+     */
+    public function burndown(){
+        $results = Contact::select('id','contact_number')->distinct()
+                ->orderBy('id','asc')->get();
+        $result = $results->toArray();
+        $aResult = array_column($result, 'contact_number');
+        $aResult = json_encode($aResult);
+        
+        
+        $crud = Contact::select('contacts.id','contact_number'
+                , DB::raw("COUNT(contact_relations.id) as count_click"))
+        ->leftJoin('contact_relations', 'contact_relations.contact_id', '=', 'contacts.id');
+        $crud->groupBy('contacts.contact_number');
+        $aCount = $crud->orderBy('contacts.id','asc')->get();
+        $aCount = json_encode($aCount);
+        return view('contact.burndown', compact('aResult','aCount'));
+//       return redirect('/burndown');
     }
 }

@@ -5,6 +5,7 @@
   <div class="container">
   <div>
   <a href="{{action('ContactController@import')}}" class="btn btn-warning">Import</a>
+  <a href="{{action('ContactController@burndown')}}" class="btn btn-warning">BurnDownChart</a>
   </div>
     <table class="table table-striped">
     <thead>

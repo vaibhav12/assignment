@@ -46,6 +46,7 @@
     <div class="form-group row">
       <div class="col-md-2"></div>
       <button type="submit" class="btn btn-primary">Update</button>
+      <a href="{{ URL::previous() }}">Go Back</a>
     </div>
   </form>
 </div>
