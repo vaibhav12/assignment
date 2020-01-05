@@ -11,13 +11,11 @@
 |
 */
 
-//Route::get('/', function () {
-//    return view('welcome');
-//});
-Route::resource('/', 'ContactController');
+Route::get('/', function () {
+    return redirect('contact');
+});
+Route::resource('contact', 'ContactController');
 
-
-  
 Route::get('/import', 'ContactController@import');
 Route::get('/burndown', 'ContactController@burndown');
 
