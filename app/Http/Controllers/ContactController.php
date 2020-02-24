@@ -194,4 +194,24 @@ class ContactController extends Controller
         $aCount = json_encode($aCount1);
         return view('contact.burndown', compact('aResult','aCount'));
     }
+    
+    public function createContacts()
+    {
+        $data= file_get_contents('https://uinames.com/api/?ext&amount=100&region=india');
+        $data = json_decode($data);
+        foreach($data as $listing){
+            $objUsr = DB::table('contacts')->where('email', $listing->email)->first();
+            if(!$objUsr) {
+                $phone = '+'.str_replace(['+','(',')',' ','-'],['','','','',''],$listing->phone);					
+                $contact = new Contact([
+                          'full_name' => $listing->name." ".$listing->surname,
+                          'email' => $listing->email,
+                          'contact_number' => $phone,
+                        ]);
+
+                $contact->save();	
+            }
+        }
+        return 'Saved Information..';
+    }
 }
