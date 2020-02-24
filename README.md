@@ -17,3 +17,6 @@ Run the below commands:
 "php artisan serve" to run the project on localhost.
 
 After Running the Project, Click on Import to get the records.
+
+To add the contacts by artisian command use below command:
+"php artisan create:contacts"
