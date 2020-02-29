@@ -38,7 +38,7 @@
       <div class="col-sm-10">
 	  <select class="form-control chosen-select" name="relation_id[]" multiple tabindex="4">
 		 @foreach($results as $result)
-      <option value=" {{$result->id}}">{{$result->full_name}}</option>
+      <option value=" {{$result->id}}" @if(in_array($result->id,$arr))selected="selected"@endif >{{$result->full_name}}</option>
     @endforeach
 	</select> 
 	  </div>

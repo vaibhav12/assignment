@@ -80,7 +80,6 @@ class ContactController extends Controller
     {
         $crud = Contact::find($id);
         $arr[] = $id;
-        //$searchRelation = ContactRelation::select('group_concat(relation_contact_id)')->where('contact_id', $id)->get();
         $searchRelation = DB::table('contact_relations')
         ->select(DB::raw("GROUP_CONCAT(relation_contact_id) as `ids`"))
         ->where('contact_id', $id)
@@ -95,10 +94,25 @@ class ContactController extends Controller
         $relationIdsReverse = explode(",",$searchRelationReverse->ids);
 
         $arr = array_merge($relationIdsReverse,$arr);
-
-        $results = Contact::select('id','full_name')->whereNotIn('id', $arr)->get();
-
-        return view('contact.edit', compact('crud','id','results'));
+        
+        $query1 = DB::table('contacts as t')
+            ->whereNotIn('t.id',[$id])    
+            ->whereNotExists(function ($query)
+            {
+                $query->select('*')
+                ->from('contact_relations')
+                ->whereRaw('t.id = contact_relations.relation_contact_id');
+            });
+        
+        $query2 = DB::table('contacts')
+        ->whereIn('id', function($query) use($id)
+        {
+            $query->select('relation_contact_id')
+                  ->from('contact_relations')
+                  ->where('contact_id',[$id]);
+        });    
+        $results = $query1->union($query2)->get();
+        return view('contact.edit', compact('crud','id','results','arr'));
     }
 
     /**
