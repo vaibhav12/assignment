@@ -160,10 +160,15 @@ class ContactController extends Controller
      */
     public function destroy($id)
     {
-      $crud = Contact::find($id);
-      $crud->delete();
+        DB::table('contact_relations')    
+             ->where(function($q) use($id) {
+                $q->where('contact_id', $id)
+                  ->orWhere('relation_contact_id', $id);
+            })->delete();
+        $crud = Contact::find($id);
+        $crud->delete();
 
-      return redirect('/contact');
+        return redirect('/contact');
     }
 	
     /**
