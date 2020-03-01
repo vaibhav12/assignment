@@ -37,6 +37,7 @@
       <label for="smFormGroupInput" class="col-sm-2 col-form-label col-form-label-sm">Relation</label>
       <div class="col-sm-10">
 	  <select class="form-control chosen-select" name="relation_id[]" multiple tabindex="4">
+              <option>Select Contacts</option>  
 		 @foreach($results as $result)
       <option value=" {{$result->id}}" @if(in_array($result->id,$arr))selected="selected"@endif >{{$result->full_name}}</option>
     @endforeach

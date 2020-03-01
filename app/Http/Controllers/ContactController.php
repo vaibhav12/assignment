@@ -86,14 +86,6 @@ class ContactController extends Controller
         ->first();
         $relationIds = explode(",",$searchRelation->ids);
         $arr = array_merge($relationIds,$arr);
-		
-        $searchRelationReverse = DB::table('contact_relations')
-        ->select(DB::raw("GROUP_CONCAT(contact_id) as `ids`"))
-        ->where('relation_contact_id', $id)
-        ->first();		
-        $relationIdsReverse = explode(",",$searchRelationReverse->ids);
-
-        $arr = array_merge($relationIdsReverse,$arr);
         
         $query1 = DB::table('contacts as t')
             ->whereNotIn('t.id',[$id])    
@@ -134,12 +126,13 @@ class ContactController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
         $crud = Contact::find($id);
-        $crud->full_name = $request->get('full_name');
-        $crud->email = $request->get('email');
-        $crud->contact_number = $request->get('contact_number');
-        $crud->save();
-		
-        if(count($request->get('relation_id')) > 0){
+            $crud->full_name = $request->get('full_name');
+            $crud->email = $request->get('email');
+            $crud->contact_number = $request->get('contact_number');
+            $crud->save();
+        if(count($request->get('relation_id')) > 0 
+                && $request->get('relation_id')[0] != 'Select Contacts'){
+            
             foreach($request->get('relation_id') as $value){
                 $saveRelation = new ContactRelation([
                   'contact_id' => $id,
@@ -148,6 +141,11 @@ class ContactController extends Controller
 
                 $saveRelation->save();
             }
+        } else{
+            DB::table('contact_relations')    
+             ->where(function($q) use($id) {
+                $q->where('contact_id', $id);
+            })->delete();
         }
         return redirect('/contact');
     }
